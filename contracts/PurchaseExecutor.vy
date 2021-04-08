@@ -24,7 +24,7 @@ interface Vault:
 # The purchase has been executed exchanging ETH to vested LDO
 event PurchaseExecuted:
     # the address that has received the vested LDO tokens
-    ldo_receiver: address
+    ldo_receiver: indexed(address)
     # the number of LDO tokens vested to ldo_receiver
     ldo_allocation: uint256
     # the amount of ETH that was paid and forwarded to the DAO
