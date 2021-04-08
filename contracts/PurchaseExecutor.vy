@@ -4,18 +4,6 @@
 from vyper.interfaces import ERC20
 
 
-# Lido DAO TokenManager contract
-interface TokenManager:
-    def assignVested(
-        _receiver: address,
-        _amount: uint256,
-        _start: uint256,
-        _cliff: uint256,
-        _vested: uint256,
-        _revokable: bool
-    ) -> uint256: nonpayable
-
-
 # Lido DAO Vault (Agent) contract
 interface Vault:
     def deposit(_token: address, _value: uint256): payable
@@ -145,14 +133,21 @@ def _execute_purchase(_ldo_receiver: address, _caller: address, _eth_received: u
     assert ERC20(LDO_TOKEN).transfer(LIDO_DAO_TOKEN_MANAGER, ldo_allocation)
 
     # assign vested LDO tokens to the purchaser from the DAO treasury reserves
-    vesting_id: uint256 = TokenManager(LIDO_DAO_TOKEN_MANAGER).assignVested(
-        _ldo_receiver,
-        ldo_allocation,
-        vesting_start,
-        vesting_cliff,
-        vesting_end,
-        False
+    # Vyper has no uint64 data type so we have to use raw_call instead of an interface
+    call_result: Bytes[32] = raw_call(
+        LIDO_DAO_TOKEN_MANAGER,
+        concat(
+            method_id('assignVested(address,uint256,uint64,uint64,uint64,bool)'),
+            convert(_ldo_receiver, bytes32),
+            convert(ldo_allocation, bytes32),
+            convert(vesting_start, bytes32),
+            convert(vesting_cliff, bytes32),
+            convert(vesting_end, bytes32),
+            convert(False, bytes32)
+        ),
+        max_outsize=32
     )
+    vesting_id: uint256 = convert(extract32(call_result, 0), uint256)
 
     log PurchaseExecuted(_ldo_receiver, ldo_allocation, eth_cost, vesting_id)
 
