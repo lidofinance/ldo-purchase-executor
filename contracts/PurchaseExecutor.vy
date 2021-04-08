@@ -163,8 +163,7 @@ def _execute_purchase(_ldo_receiver: address, _caller: address, _eth_received: u
 @payable
 def execute_purchase(_ldo_receiver: address = msg.sender) -> uint256:
     """
-    Purchases LDO for the specified address (defaults to message sender) in exchange for ETH.
-
+    @notice Purchases LDO for the specified address (defaults to message sender) in exchange for ETH.
     @param _ldo_receiver The address the purchase is executed for. Must be a valid purchaser.
     @return Vesting ID to be used with the DAO's `TokenManager` contract.
     """
@@ -175,6 +174,6 @@ def execute_purchase(_ldo_receiver: address = msg.sender) -> uint256:
 @payable
 def __default__():
     """
-    Purchases LDO for the message sender in exchange for ETH.
+    @notice Purchases LDO for the message sender in exchange for ETH.
     """
     self._execute_purchase(msg.sender, msg.sender, msg.value)
