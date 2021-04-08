@@ -1,6 +1,8 @@
 # @version 0.2.8
 # @author Lido <info@lido.fi>
 # @licence MIT
+from vyper.interfaces import ERC20
+
 
 # Lido DAO TokenManager contract
 interface TokenManager:
@@ -34,6 +36,7 @@ event PurchaseExecuted:
 MAX_PURCHASERS: constant(uint256) = 50
 ETH_TO_LDO_RATE_PRECISION: constant(uint256) = 10**18
 
+LDO_TOKEN: constant(address) = 0x5A98FcBEA516Cf06857215779Fd812CA3beF1B32
 LIDO_DAO_TOKEN_MANAGER: constant(address) = 0xf73a1260d222f447210581DDf212D915c09a3249
 LIDO_DAO_VAULT: constant(address) = 0x3e40D73EB977Dc6a537aF587D48316feE66E9C8c
 LIDO_DAO_VAULT_ETH_TOKEN: constant(address) = ZERO_ADDRESS
@@ -111,9 +114,9 @@ def _execute_purchase(_ldo_receiver: address, _caller: address, _eth_received: u
     """
     @dev
         We don't use any reentrancy lock here because, among all external calls in this
-        function (Vault.deposit, TokenManager.assignVested, and the default payable
-        function of the message sender), only the last one executes the code not under
-        our control, and we make this call after all state mutations.
+        function (Vault.deposit, TokenManager.assignVested, LDO.transfer, and the default
+        payable function of the message sender), only the last one executes the code not
+        under our control, and we make this call after all state mutations.
     """
     assert block.timestamp < self.offer_expires_at, "offer expired"
 
@@ -137,6 +140,9 @@ def _execute_purchase(_ldo_receiver: address, _caller: address, _eth_received: u
     vesting_start: uint256 = block.timestamp
     vesting_cliff: uint256 = vesting_start + self.vesting_cliff_delay
     vesting_end: uint256 = vesting_start + self.vesting_end_delay
+
+    # TokenManager can only assign vested tokens from its own balance
+    assert ERC20(LDO_TOKEN).transfer(LIDO_DAO_TOKEN_MANAGER, ldo_allocation)
 
     # assign vested LDO tokens to the purchaser from the DAO treasury reserves
     vesting_id: uint256 = TokenManager(LIDO_DAO_TOKEN_MANAGER).assignVested(
@@ -177,3 +183,15 @@ def __default__():
     @notice Purchases LDO for the message sender in exchange for ETH.
     """
     self._execute_purchase(msg.sender, msg.sender, msg.value)
+
+
+@external
+def recover_unsold_tokens():
+    """
+    @notice Transfers unsold LDO tokens back to the DAO treasury.
+    @dev May only be called after the offer expires.
+    """
+    assert block.timestamp >= self.offer_expires_at
+    unsold_ldo_amount: uint256 = ERC20(LDO_TOKEN).balanceOf(self)
+    if unsold_ldo_amount > 0:
+        ERC20(LDO_TOKEN).transfer(LIDO_DAO_VAULT, unsold_ldo_amount)
