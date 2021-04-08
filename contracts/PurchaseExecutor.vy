@@ -154,8 +154,8 @@ def _execute_purchase(_ldo_receiver: address, _caller: address, _eth_received: u
     # refund any excess ETH to the caller
     eth_refund: uint256 = _eth_received - eth_cost
     if eth_refund > 0:
-        # use raw_call to forward enough gas for a smart contract to receive the refund
-        raw_call(_caller, b"", value=eth_refund, gas=min(100000, msg.gas))
+        # use raw_call to forward all remaining gas just in case the caller is a smart contract
+        raw_call(_caller, b"", value=eth_refund)
 
     return vesting_id
 
