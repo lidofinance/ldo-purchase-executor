@@ -31,7 +31,8 @@ from purchase_config import (
     VESTING_CLIFF_DELAY,
     VESTING_END_DELAY,
     OFFER_EXPIRATION_DELAY,
-    LDO_PURCHASERS
+    LDO_PURCHASERS,
+    ALLOCATIONS_TOTAL
 )
 
 
@@ -41,7 +42,8 @@ def deploy_and_start_dao_vote(
     vesting_cliff_delay=VESTING_CLIFF_DELAY,
     vesting_end_delay=VESTING_END_DELAY,
     offer_expiration_delay=OFFER_EXPIRATION_DELAY,
-    ldo_purchasers=LDO_PURCHASERS
+    ldo_purchasers=LDO_PURCHASERS,
+    allocations_total = ALLOCATIONS_TOTAL
 ):
     zero_padding_len = 50 - len(ldo_purchasers)
     ldo_recipients = [ p[0] for p in ldo_purchasers ] + [ZERO_ADDRESS] * zero_padding_len
@@ -54,6 +56,7 @@ def deploy_and_start_dao_vote(
         offer_expiration_delay,
         ldo_recipients,
         ldo_allocations,
+        allocations_total,
         tx_params,
         # Etherscan doesn't support Vyper verification yet
         publish_source=False
