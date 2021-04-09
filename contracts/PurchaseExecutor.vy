@@ -47,7 +47,8 @@ def __init__(
     _vesting_end_delay: uint256,
     _offer_expiration_delay: uint256,
     _ldo_purchasers: address[MAX_PURCHASERS],
-    _ldo_allocations: uint256[MAX_PURCHASERS]
+    _ldo_allocations: uint256[MAX_PURCHASERS],
+    _ldo_allocations_total: uint256
 ):
     """
     @param _eth_to_ldo_rate How much LDO one gets for one ETH (multiplied by 10**18)
@@ -56,10 +57,17 @@ def __init__(
     @param _offer_expiration_delay Delay from the contract deployment to offer expiration, in seconds
     @param _ldo_purchasers List of valid LDO purchasers, padded by zeroes to the length of 50
     @param _ldo_allocations List of LDO token allocations, padded by zeroes to the length of 50
+    @param _ldo_allocations_total Checksum of LDO token allocations
     """
     assert _eth_to_ldo_rate > 0
     assert _vesting_end_delay >= _vesting_cliff_delay
     assert _offer_expiration_delay > 0
+
+    allocations_sum: uint256 = 0
+    for allocation in _ldo_allocations:
+        allocations_sum += allocation
+
+    assert allocations_sum == _ldo_allocations_total
 
     self.eth_to_ldo_rate = _eth_to_ldo_rate
     self.vesting_cliff_delay = _vesting_cliff_delay

@@ -25,8 +25,21 @@ def executor(accounts, deploy_executor_and_pass_dao_vote):
         vesting_cliff_delay=VESTING_CLIFF_DELAY,
         vesting_end_delay=VESTING_END_DELAY,
         offer_expiration_delay=OFFER_EXPIRATION_DELAY,
-        ldo_purchasers=[ (accounts[i], LDO_ALLOCATIONS[i]) for i in range(0, len(LDO_ALLOCATIONS)) ]
+        ldo_purchasers=[ (accounts[i], LDO_ALLOCATIONS[i]) for i in range(0, len(LDO_ALLOCATIONS)) ],
+        allocations_total=sum(LDO_ALLOCATIONS)
     )
+
+
+def test_deploy_should_failed_on_wrong_allocations_total(accounts, deploy_executor_and_pass_dao_vote):
+    with reverts():
+        deploy_executor_and_pass_dao_vote(
+            eth_to_ldo_rate=ETH_TO_LDO_RATE,
+            vesting_cliff_delay=VESTING_CLIFF_DELAY,
+            vesting_end_delay=VESTING_END_DELAY,
+            offer_expiration_delay=OFFER_EXPIRATION_DELAY,
+            ldo_purchasers=[ (accounts[i], LDO_ALLOCATIONS[i]) for i in range(0, len(LDO_ALLOCATIONS)) ],
+            allocations_total=sum(LDO_ALLOCATIONS) + 1
+        )
 
 
 def test_purchase_via_transfer(accounts, executor, dao_agent, helpers, ldo_token, dao_token_manager):
@@ -234,7 +247,7 @@ def test_double_purchase_not_allowed_via_execute_purchase(accounts, executor, da
 
     helpers.fund_with_eth(purchaser, eth_cost)
 
-    tx = executor.execute_purchase(purchaser, { 'from': purchaser, 'value': eth_cost })
+    executor.execute_purchase(purchaser, { 'from': purchaser, 'value': eth_cost })
 
     with reverts("no allocation"):
         executor.execute_purchase(purchaser, { 'from': purchaser, 'value': eth_cost })
