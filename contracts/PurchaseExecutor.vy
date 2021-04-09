@@ -63,16 +63,12 @@ def __init__(
     assert _vesting_end_delay >= _vesting_cliff_delay
     assert _offer_expiration_delay > 0
 
-    allocations_sum: uint256 = 0
-    for allocation in _ldo_allocations:
-        allocations_sum += allocation
-
-    assert allocations_sum == _ldo_allocations_total
-
     self.eth_to_ldo_rate = _eth_to_ldo_rate
     self.vesting_cliff_delay = _vesting_cliff_delay
     self.vesting_end_delay = _vesting_end_delay
     self.offer_expires_at = block.timestamp + _offer_expiration_delay
+
+    allocations_sum: uint256 = 0
 
     for i in range(MAX_PURCHASERS):
         purchaser: address = _ldo_purchasers[i]
@@ -82,6 +78,9 @@ def __init__(
         allocation: uint256 = _ldo_allocations[i]
         assert allocation > 0
         self.ldo_allocations[purchaser] = allocation
+        allocations_sum += allocation
+
+    assert allocations_sum == _ldo_allocations_total
 
 
 @internal
