@@ -30,7 +30,7 @@ def executor(accounts, deploy_executor_and_pass_dao_vote):
     )
 
 
-def test_deploy_should_failed_on_wrong_allocations_total(accounts, deploy_executor_and_pass_dao_vote):
+def test_deploy_should_fails_on_wrong_allocations_total(accounts, deploy_executor_and_pass_dao_vote):
     with reverts():
         deploy_executor_and_pass_dao_vote(
             eth_to_ldo_rate=ETH_TO_LDO_RATE,
@@ -39,6 +39,54 @@ def test_deploy_should_failed_on_wrong_allocations_total(accounts, deploy_execut
             offer_expiration_delay=OFFER_EXPIRATION_DELAY,
             ldo_purchasers=[ (accounts[i], LDO_ALLOCATIONS[i]) for i in range(0, len(LDO_ALLOCATIONS)) ],
             allocations_total=sum(LDO_ALLOCATIONS) + 1
+        )
+
+
+def test_deploy_should_fails_on_zero_rate(accounts, deploy_executor_and_pass_dao_vote):
+    with reverts():
+        deploy_executor_and_pass_dao_vote(
+            eth_to_ldo_rate=0,
+            vesting_cliff_delay=VESTING_CLIFF_DELAY,
+            vesting_end_delay=VESTING_END_DELAY,
+            offer_expiration_delay=OFFER_EXPIRATION_DELAY,
+            ldo_purchasers=[ (accounts[i], LDO_ALLOCATIONS[i]) for i in range(0, len(LDO_ALLOCATIONS)) ],
+            allocations_total=sum(LDO_ALLOCATIONS)
+        )
+
+
+def test_deploy_should_fails_on_vesting_ends_before_cliff(accounts, deploy_executor_and_pass_dao_vote):
+    with reverts():
+        deploy_executor_and_pass_dao_vote(
+            eth_to_ldo_rate=ETH_TO_LDO_RATE,
+            vesting_cliff_delay=VESTING_CLIFF_DELAY,
+            vesting_end_delay=VESTING_CLIFF_DELAY - 1,
+            offer_expiration_delay=OFFER_EXPIRATION_DELAY,
+            ldo_purchasers=[ (accounts[i], LDO_ALLOCATIONS[i]) for i in range(0, len(LDO_ALLOCATIONS)) ],
+            allocations_total=sum(LDO_ALLOCATIONS)
+        )
+
+
+def test_deploy_should_fails_on_zero_offer_exparation_delay(accounts, deploy_executor_and_pass_dao_vote):
+    with reverts():
+        deploy_executor_and_pass_dao_vote(
+            eth_to_ldo_rate=ETH_TO_LDO_RATE,
+            vesting_cliff_delay=VESTING_CLIFF_DELAY,
+            vesting_end_delay=VESTING_END_DELAY,
+            offer_expiration_delay=0,
+            ldo_purchasers=[ (accounts[i], LDO_ALLOCATIONS[i]) for i in range(0, len(LDO_ALLOCATIONS)) ],
+            allocations_total=sum(LDO_ALLOCATIONS)
+        )
+
+
+def test_deploy_should_fails_on_purchasers_duplicates(accounts, deploy_executor_and_pass_dao_vote):
+    with reverts():
+        deploy_executor_and_pass_dao_vote(
+            eth_to_ldo_rate=ETH_TO_LDO_RATE,
+            vesting_cliff_delay=VESTING_CLIFF_DELAY,
+            vesting_end_delay=VESTING_END_DELAY,
+            offer_expiration_delay=OFFER_EXPIRATION_DELAY,
+            ldo_purchasers=[ (accounts[0], LDO_ALLOCATIONS[0]) for i in range(0, len(LDO_ALLOCATIONS)) ],
+            allocations_total=sum(LDO_ALLOCATIONS)
         )
 
 
