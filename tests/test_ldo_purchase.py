@@ -75,6 +75,7 @@ def test_purchase_via_transfer(accounts, executor, dao_agent, helpers, ldo_token
     assert vesting['vesting'] == tx.timestamp + VESTING_END_DELAY
     assert vesting['revokable'] == False
 
+
 def test_purchase_via_execute_purchase(accounts, executor, dao_agent, helpers, ldo_token, dao_token_manager):
     purchaser = accounts.at(accounts[0], force=True)
     purchase_ldo_amount = LDO_ALLOCATIONS[0]
@@ -108,12 +109,13 @@ def test_purchase_via_execute_purchase(accounts, executor, dao_agent, helpers, l
     assert vesting['vesting'] == tx.timestamp + VESTING_END_DELAY
     assert vesting['revokable'] == False
 
+
 def test_stranger_not_allowed_to_purchase_via_execute_purchase(accounts, executor, helpers):
     purchase_ldo_amount = LDO_ALLOCATIONS[0]
     stranger = accounts.at(accounts[5], force=True)
 
     eth_cost = purchase_ldo_amount * ETH_TO_LDO_RATE_PRECISION // ETH_TO_LDO_RATE
-    
+
     allocation = executor.get_allocation(stranger)
     assert allocation[0] == 0
     assert allocation[1] == 0
@@ -122,6 +124,7 @@ def test_stranger_not_allowed_to_purchase_via_execute_purchase(accounts, executo
 
     with reverts("no allocation"):
         executor.execute_purchase(stranger, { 'from': stranger, 'value': eth_cost })
+
 
 def test_stranger_not_allowed_to_purchase_via_transfer(accounts, executor, helpers):
     purchase_ldo_amount = LDO_ALLOCATIONS[0]
@@ -173,6 +176,7 @@ def test_stranger_allowed_to_purchase_token_for_purchaser_via_execute_purchase(a
     assert vesting['vesting'] == tx.timestamp + VESTING_END_DELAY
     assert vesting['revokable'] == False
 
+
 def test_purchase_via_transfer_not_allowed_with_insufficient_funds(accounts, executor, dao_agent, helpers):
     purchaser = accounts.at(accounts[0], force=True)
     purchase_ldo_amount = LDO_ALLOCATIONS[0]
@@ -190,6 +194,7 @@ def test_purchase_via_transfer_not_allowed_with_insufficient_funds(accounts, exe
     with reverts("insufficient funds"):
         purchaser.transfer(to=executor, amount=eth_cost, gas_limit=400_000)
 
+
 def test_purchase_via_execute_purchase_not_allowed_with_insufficient_funds(accounts, executor, helpers):
     purchaser = accounts.at(accounts[0], force=True)
     purchase_ldo_amount = LDO_ALLOCATIONS[0]
@@ -206,6 +211,7 @@ def test_purchase_via_execute_purchase_not_allowed_with_insufficient_funds(accou
 
     with reverts("insufficient funds"):
         executor.execute_purchase(purchaser, { 'from': purchaser, 'value': eth_cost })
+
 
 def test_double_purchase_not_allowed_via_transfer(accounts, executor, helpers, ldo_token, dao_token_manager, dao_agent):
     purchaser = accounts.at(accounts[0], force=True)
@@ -235,6 +241,7 @@ def test_double_purchase_not_allowed_via_transfer(accounts, executor, helpers, l
     with reverts("no allocation"):
         purchaser.transfer(to=executor, amount=eth_cost, gas_limit=400_000)
 
+
 def test_double_purchase_not_allowed_via_execute_purchase(accounts, executor, dao_agent, helpers, ldo_token):
     purchaser = accounts.at(accounts[0], force=True)
     purchase_ldo_amount = LDO_ALLOCATIONS[0]
@@ -251,6 +258,7 @@ def test_double_purchase_not_allowed_via_execute_purchase(accounts, executor, da
 
     with reverts("no allocation"):
         executor.execute_purchase(purchaser, { 'from': purchaser, 'value': eth_cost })
+
 
 def test_overpay_should_be_returned_via_transfer(accounts, executor, dao_agent, helpers, ldo_token):
     purchaser = accounts.at(accounts[0], force=True)
@@ -320,7 +328,7 @@ def test_overpay_should_be_returned_via_execute_purchase(accounts, executor, dao
 
 def test_purchase_not_allowed_after_expiration_via_transfer(accounts, executor, helpers):
     chain = Chain()
-    
+
     purchaser = accounts.at(accounts[0], force=True)
     purchase_ldo_amount = LDO_ALLOCATIONS[0]
 
@@ -356,7 +364,7 @@ def test_purchase_not_allowed_after_expiration_via_execute_purchase(accounts, ex
     expiration_delay = executor.offer_expires_at() - chain.time()
     chain.sleep(expiration_delay + 3600)
     chain.mine()
-    
+
     with reverts("offer expired"):
         executor.execute_purchase(purchaser, { 'from': purchaser, 'value': eth_cost  })
 
@@ -372,7 +380,7 @@ def test_recover_unsold_tokens_should_transfer_all_tokens_after_exparation(execu
     expiration_delay = executor.offer_expires_at() - chain.time()
     chain.sleep(expiration_delay + 3600)
     chain.mine()
-    
+
     executor_balance = ldo_token.balanceOf(executor)
     dao_agent_balance = ldo_token.balanceOf(dao_agent)
 
