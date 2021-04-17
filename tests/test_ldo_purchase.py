@@ -17,6 +17,8 @@ VESTING_CLIFF_DELAY = 1 * 60 * 60 * 24 * 365 # one year
 VESTING_END_DELAY = 2 * 60 * 60 * 24 * 365 # two years
 OFFER_EXPIRATION_DELAY = 2629746 # one month
 
+DIRECT_TRANSFER_GAS_LIMIT=300_000
+
 
 @pytest.fixture(scope='function')
 def executor(accounts, deploy_executor_and_pass_dao_vote):
@@ -104,7 +106,7 @@ def test_purchase_via_transfer(accounts, executor, dao_agent, helpers, ldo_token
 
     dao_eth_balance_before = dao_agent.balance()
 
-    tx = purchaser.transfer(to=executor, amount=eth_cost, gas_limit=400_000)
+    tx = purchaser.transfer(to=executor, amount=eth_cost, gas_limit=DIRECT_TRANSFER_GAS_LIMIT)
     purchase_evt = helpers.assert_single_event_named('PurchaseExecuted', tx)
 
     assert purchase_evt['ldo_receiver'] == purchaser
@@ -240,7 +242,7 @@ def test_purchase_via_transfer_not_allowed_with_insufficient_funds(accounts, exe
     helpers.fund_with_eth(purchaser, eth_cost)
 
     with reverts("insufficient funds"):
-        purchaser.transfer(to=executor, amount=eth_cost, gas_limit=400_000)
+        purchaser.transfer(to=executor, amount=eth_cost, gas_limit=DIRECT_TRANSFER_GAS_LIMIT)
 
 
 def test_purchase_via_execute_purchase_not_allowed_with_insufficient_funds(accounts, executor, helpers):
@@ -275,7 +277,7 @@ def test_double_purchase_not_allowed_via_transfer(accounts, executor, helpers, l
 
     dao_eth_balance_before = dao_agent.balance()
 
-    tx = purchaser.transfer(to=executor, amount=eth_cost, gas_limit=400_000)
+    tx = purchaser.transfer(to=executor, amount=eth_cost, gas_limit=DIRECT_TRANSFER_GAS_LIMIT)
     purchase_evt = helpers.assert_single_event_named('PurchaseExecuted', tx)
 
     assert purchase_evt['ldo_receiver'] == purchaser
@@ -287,7 +289,7 @@ def test_double_purchase_not_allowed_via_transfer(accounts, executor, helpers, l
     assert ldo_token.balanceOf(purchaser) == purchase_ldo_amount
 
     with reverts("no allocation"):
-        purchaser.transfer(to=executor, amount=eth_cost, gas_limit=400_000)
+        purchaser.transfer(to=executor, amount=eth_cost, gas_limit=DIRECT_TRANSFER_GAS_LIMIT)
 
 
 def test_double_purchase_not_allowed_via_execute_purchase(accounts, executor, dao_agent, helpers, ldo_token):
@@ -327,7 +329,7 @@ def test_overpay_should_be_returned_via_transfer(accounts, executor, dao_agent, 
 
     dao_eth_balance_before = dao_agent.balance()
 
-    tx = purchaser.transfer(to=executor, amount=eth_cost + overpay_amount, gas_limit=400_000)
+    tx = purchaser.transfer(to=executor, amount=eth_cost + overpay_amount, gas_limit=DIRECT_TRANSFER_GAS_LIMIT)
     purchase_evt = helpers.assert_single_event_named('PurchaseExecuted', tx)
 
     assert purchaser.balance() == initial_purchaser_balance + overpay_amount
@@ -392,7 +394,7 @@ def test_purchase_not_allowed_after_expiration_via_transfer(accounts, executor, 
     chain.sleep(expiration_delay + 3600)
     chain.mine()
     with reverts("offer expired"):
-        purchaser.transfer(to=executor, amount=eth_cost, gas_limit=400_000)
+        purchaser.transfer(to=executor, amount=eth_cost, gas_limit=DIRECT_TRANSFER_GAS_LIMIT)
 
 
 def test_purchase_not_allowed_after_expiration_via_execute_purchase(accounts, executor, helpers):
