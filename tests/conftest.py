@@ -23,6 +23,11 @@ def ldo_holder(accounts):
 
 
 @pytest.fixture(scope='module')
+def stranger(accounts):
+    return accounts[9]
+
+
+@pytest.fixture(scope='module')
 def dao_acl(interface):
     return interface.ACL(lido_dao_acl_address)
 
@@ -49,7 +54,9 @@ def ldo_token(interface):
 
 
 class Helpers:
+    accounts = None
     eth_banker = None
+    dao_voting = None
 
     @staticmethod
     def fund_with_eth(addr, amount = '1000 ether'):
@@ -67,15 +74,46 @@ class Helpers:
         assert dict(receiver_events[0]) == evt_keys_dict
       return receiver_events[0]
 
+    @staticmethod
+    def pass_and_exec_dao_vote(vote_id):
+        print(f'executing vote {vote_id}')
+
+        # together these accounts hold 15% of LDO total supply
+        ldo_holders = [
+            '0x3e40d73eb977dc6a537af587d48316fee66e9c8c',
+            '0xb8d83908aab38a159f3da47a59d84db8e1838712',
+            '0xa2dfc431297aee387c05beef507e5335e684fbcd'
+        ]
+
+        helper_acct = Helpers.accounts[0]
+
+        for holder_addr in ldo_holders:
+            print(f'voting from {holder_addr}')
+            helper_acct.transfer(holder_addr, '0.1 ether')
+            account = Helpers.accounts.at(holder_addr, force=True)
+            Helpers.dao_voting.vote(vote_id, True, False, {'from': account})
+
+        # wait for the vote to end
+        chain.sleep(3 * 60 * 60 * 24)
+        chain.mine()
+
+        assert Helpers.dao_voting.canExecute(vote_id)
+        Helpers.dao_voting.executeVote(vote_id, {'from': helper_acct})
+
+        print(f'vote {vote_id} executed')
+
+
 
 @pytest.fixture(scope='module')
-def helpers(accounts):
+def helpers(accounts, dao_voting):
+    Helpers.accounts = accounts
     Helpers.eth_banker = accounts.at('0xBE0eB53F46cd790Cd13851d5EFf43D12404d33E8', force=True)
+    Helpers.dao_voting = dao_voting
     return Helpers
 
 
 @pytest.fixture(scope='module')
-def deploy_executor_and_pass_dao_vote(accounts, ldo_holder, ldo_token, dao_acl, dao_voting, dao_token_manager):
+def deploy_executor_and_pass_dao_vote(accounts, ldo_holder, ldo_token, dao_acl, dao_token_manager, helpers):
     def deploy(
         eth_to_ldo_rate,
         vesting_cliff_delay,
@@ -94,29 +132,7 @@ def deploy_executor_and_pass_dao_vote(accounts, ldo_holder, ldo_token, dao_acl, 
             allocations_total=allocations_total
         )
 
-        print(f'vote id: {vote_id}')
-
-        # together these accounts hold 15% of LDO total supply
-        ldo_holders = [
-            '0x3e40d73eb977dc6a537af587d48316fee66e9c8c',
-            '0xb8d83908aab38a159f3da47a59d84db8e1838712',
-            '0xa2dfc431297aee387c05beef507e5335e684fbcd'
-        ]
-
-        for holder_addr in ldo_holders:
-            print('voting from acct:', holder_addr)
-            accounts[0].transfer(holder_addr, '0.1 ether')
-            account = accounts.at(holder_addr, force=True)
-            dao_voting.vote(vote_id, True, False, {'from': account})
-
-        # wait for the vote to end
-        chain.sleep(3 * 60 * 60 * 24)
-        chain.mine()
-
-        assert dao_voting.canExecute(vote_id)
-        dao_voting.executeVote(vote_id, {'from': accounts[0]})
-
-        print(f'vote executed')
+        helpers.pass_and_exec_dao_vote(vote_id)
 
         total_ldo_assignment = sum([ p[1] for p in ldo_purchasers ])
         assert ldo_token.balanceOf(executor) == total_ldo_assignment
