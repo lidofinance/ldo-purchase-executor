@@ -22,7 +22,7 @@ DIRECT_TRANSFER_GAS_LIMIT=300_000
 
 @pytest.fixture(scope='function')
 def executor(accounts, deploy_executor_and_pass_dao_vote):
-    return deploy_executor_and_pass_dao_vote(
+    executor = deploy_executor_and_pass_dao_vote(
         eth_to_ldo_rate=ETH_TO_LDO_RATE,
         vesting_cliff_delay=VESTING_CLIFF_DELAY,
         vesting_end_delay=VESTING_END_DELAY,
@@ -30,6 +30,8 @@ def executor(accounts, deploy_executor_and_pass_dao_vote):
         ldo_purchasers=[ (accounts[i], LDO_ALLOCATIONS[i]) for i in range(0, len(LDO_ALLOCATIONS)) ],
         allocations_total=sum(LDO_ALLOCATIONS)
     )
+    executor.start({ 'from': accounts[0] })
+    return executor
 
 
 def test_deploy_fails_on_wrong_allocations_total(accounts, deploy_executor_and_pass_dao_vote):
