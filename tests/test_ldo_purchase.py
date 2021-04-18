@@ -94,6 +94,16 @@ def test_deploy_fails_on_purchasers_duplicates(accounts, deploy_executor_and_pas
         )
 
 
+def test_executor_config_is_correct(executor):
+    assert executor.eth_to_ldo_rate() == ETH_TO_LDO_RATE
+    assert executor.vesting_cliff_delay() == VESTING_CLIFF_DELAY
+    assert executor.vesting_end_delay() == VESTING_END_DELAY
+    assert executor.offer_expiration_delay() == OFFER_EXPIRATION_DELAY
+    assert executor.ldo_allocations_total() == sum(LDO_ALLOCATIONS)
+    assert executor.offer_started()
+    assert executor.offer_expires_at() == executor.offer_started_at() + OFFER_EXPIRATION_DELAY
+
+
 def test_purchase_via_transfer(accounts, executor, dao_agent, helpers, ldo_token, dao_token_manager):
     purchaser = accounts[0]
     purchase_ldo_amount = LDO_ALLOCATIONS[0]
