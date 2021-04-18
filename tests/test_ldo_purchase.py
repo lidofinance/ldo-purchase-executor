@@ -32,7 +32,7 @@ def executor(accounts, deploy_executor_and_pass_dao_vote):
     )
 
 
-def test_deploy_should_fails_on_wrong_allocations_total(accounts, deploy_executor_and_pass_dao_vote):
+def test_deploy_fails_on_wrong_allocations_total(accounts, deploy_executor_and_pass_dao_vote):
     with reverts():
         deploy_executor_and_pass_dao_vote(
             eth_to_ldo_rate=ETH_TO_LDO_RATE,
@@ -44,7 +44,7 @@ def test_deploy_should_fails_on_wrong_allocations_total(accounts, deploy_executo
         )
 
 
-def test_deploy_should_fails_on_zero_rate(accounts, deploy_executor_and_pass_dao_vote):
+def test_deploy_fails_on_zero_rate(accounts, deploy_executor_and_pass_dao_vote):
     with reverts():
         deploy_executor_and_pass_dao_vote(
             eth_to_ldo_rate=0,
@@ -56,7 +56,7 @@ def test_deploy_should_fails_on_zero_rate(accounts, deploy_executor_and_pass_dao
         )
 
 
-def test_deploy_should_fails_on_vesting_ends_before_cliff(accounts, deploy_executor_and_pass_dao_vote):
+def test_deploy_fails_on_vesting_ends_before_cliff(accounts, deploy_executor_and_pass_dao_vote):
     with reverts():
         deploy_executor_and_pass_dao_vote(
             eth_to_ldo_rate=ETH_TO_LDO_RATE,
@@ -68,7 +68,7 @@ def test_deploy_should_fails_on_vesting_ends_before_cliff(accounts, deploy_execu
         )
 
 
-def test_deploy_should_fails_on_zero_offer_exparation_delay(accounts, deploy_executor_and_pass_dao_vote):
+def test_deploy_fails_on_zero_offer_exparation_delay(accounts, deploy_executor_and_pass_dao_vote):
     with reverts():
         deploy_executor_and_pass_dao_vote(
             eth_to_ldo_rate=ETH_TO_LDO_RATE,
@@ -80,7 +80,7 @@ def test_deploy_should_fails_on_zero_offer_exparation_delay(accounts, deploy_exe
         )
 
 
-def test_deploy_should_fails_on_purchasers_duplicates(accounts, deploy_executor_and_pass_dao_vote):
+def test_deploy_fails_on_purchasers_duplicates(accounts, deploy_executor_and_pass_dao_vote):
     with reverts():
         deploy_executor_and_pass_dao_vote(
             eth_to_ldo_rate=ETH_TO_LDO_RATE,
@@ -310,7 +310,7 @@ def test_double_purchase_not_allowed_via_execute_purchase(accounts, executor, da
         executor.execute_purchase(purchaser, { 'from': purchaser, 'value': eth_cost })
 
 
-def test_overpay_should_be_returned_via_transfer(accounts, executor, dao_agent, helpers, ldo_token):
+def test_overpay_is_returned_via_transfer(accounts, executor, dao_agent, helpers, ldo_token):
     purchaser = accounts[0]
     purchase_ldo_amount = LDO_ALLOCATIONS[0]
 
@@ -343,7 +343,7 @@ def test_overpay_should_be_returned_via_transfer(accounts, executor, dao_agent, 
     assert ldo_token.balanceOf(purchaser) == purchase_ldo_amount
 
 
-def test_overpay_should_be_returned_via_execute_purchase(accounts, executor, dao_agent, helpers, ldo_token):
+def test_overpay_is_returned_via_execute_purchase(accounts, executor, dao_agent, helpers, ldo_token):
     purchaser = accounts[0]
     purchase_ldo_amount = LDO_ALLOCATIONS[0]
 
@@ -424,7 +424,7 @@ def test_recover_unsold_tokens_not_allowed_until_exparation(executor, dao_agent)
         executor.recover_unsold_tokens()
 
 
-def test_recover_unsold_tokens_should_transfer_all_tokens_after_exparation(executor, dao_agent, ldo_token):
+def test_recover_unsold_tokens_returns_unsold_tokens_to_dao_vault_after_exparation(executor, dao_agent, ldo_token):
     chain = Chain()
 
     expiration_delay = executor.offer_expires_at() - chain.time()
