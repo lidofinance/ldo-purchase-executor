@@ -93,7 +93,7 @@ def test_deploy_should_fails_on_purchasers_duplicates(accounts, deploy_executor_
 
 
 def test_purchase_via_transfer(accounts, executor, dao_agent, helpers, ldo_token, dao_token_manager):
-    purchaser = accounts.at(accounts[0], force=True)
+    purchaser = accounts[0]
     purchase_ldo_amount = LDO_ALLOCATIONS[0]
 
     eth_cost = purchase_ldo_amount * ETH_TO_LDO_RATE_PRECISION // ETH_TO_LDO_RATE
@@ -127,7 +127,7 @@ def test_purchase_via_transfer(accounts, executor, dao_agent, helpers, ldo_token
 
 
 def test_purchase_via_execute_purchase(accounts, executor, dao_agent, helpers, ldo_token, dao_token_manager):
-    purchaser = accounts.at(accounts[0], force=True)
+    purchaser = accounts[0]
     purchase_ldo_amount = LDO_ALLOCATIONS[0]
 
     eth_cost = purchase_ldo_amount * ETH_TO_LDO_RATE_PRECISION // ETH_TO_LDO_RATE
@@ -162,7 +162,7 @@ def test_purchase_via_execute_purchase(accounts, executor, dao_agent, helpers, l
 
 def test_stranger_not_allowed_to_purchase_via_execute_purchase(accounts, executor, helpers):
     purchase_ldo_amount = LDO_ALLOCATIONS[0]
-    stranger = accounts.at(accounts[5], force=True)
+    stranger = accounts[5]
 
     eth_cost = purchase_ldo_amount * ETH_TO_LDO_RATE_PRECISION // ETH_TO_LDO_RATE
 
@@ -178,7 +178,7 @@ def test_stranger_not_allowed_to_purchase_via_execute_purchase(accounts, executo
 
 def test_stranger_not_allowed_to_purchase_via_transfer(accounts, executor, helpers):
     purchase_ldo_amount = LDO_ALLOCATIONS[0]
-    stranger = accounts.at(accounts[5], force=True)
+    stranger = accounts[5]
 
     allocation = executor.get_allocation(stranger)
     assert allocation[0] == 0
@@ -193,9 +193,9 @@ def test_stranger_not_allowed_to_purchase_via_transfer(accounts, executor, helpe
 
 
 def test_stranger_allowed_to_purchase_token_for_purchaser_via_execute_purchase(accounts, executor, dao_agent, helpers, ldo_token, dao_token_manager):
-    purchaser = accounts.at(accounts[0], force=True)
+    purchaser = accounts[0]
     purchase_ldo_amount = LDO_ALLOCATIONS[0]
-    stranger = accounts.at(accounts[5], force=True)
+    stranger = accounts[5]
 
     eth_cost = purchase_ldo_amount * ETH_TO_LDO_RATE_PRECISION // ETH_TO_LDO_RATE
 
@@ -228,7 +228,7 @@ def test_stranger_allowed_to_purchase_token_for_purchaser_via_execute_purchase(a
 
 
 def test_purchase_via_transfer_not_allowed_with_insufficient_funds(accounts, executor, dao_agent, helpers):
-    purchaser = accounts.at(accounts[0], force=True)
+    purchaser = accounts[0]
     purchase_ldo_amount = LDO_ALLOCATIONS[0]
 
     eth_cost = purchase_ldo_amount * ETH_TO_LDO_RATE_PRECISION // ETH_TO_LDO_RATE
@@ -246,7 +246,7 @@ def test_purchase_via_transfer_not_allowed_with_insufficient_funds(accounts, exe
 
 
 def test_purchase_via_execute_purchase_not_allowed_with_insufficient_funds(accounts, executor, helpers):
-    purchaser = accounts.at(accounts[0], force=True)
+    purchaser = accounts[0]
     purchase_ldo_amount = LDO_ALLOCATIONS[0]
 
     eth_cost = purchase_ldo_amount * ETH_TO_LDO_RATE_PRECISION // ETH_TO_LDO_RATE
@@ -264,7 +264,7 @@ def test_purchase_via_execute_purchase_not_allowed_with_insufficient_funds(accou
 
 
 def test_double_purchase_not_allowed_via_transfer(accounts, executor, helpers, ldo_token, dao_token_manager, dao_agent):
-    purchaser = accounts.at(accounts[0], force=True)
+    purchaser = accounts[0]
     purchase_ldo_amount = LDO_ALLOCATIONS[0]
 
     eth_cost = purchase_ldo_amount * ETH_TO_LDO_RATE_PRECISION // ETH_TO_LDO_RATE
@@ -293,7 +293,7 @@ def test_double_purchase_not_allowed_via_transfer(accounts, executor, helpers, l
 
 
 def test_double_purchase_not_allowed_via_execute_purchase(accounts, executor, dao_agent, helpers, ldo_token):
-    purchaser = accounts.at(accounts[0], force=True)
+    purchaser = accounts[0]
     purchase_ldo_amount = LDO_ALLOCATIONS[0]
 
     eth_cost = purchase_ldo_amount * ETH_TO_LDO_RATE_PRECISION // ETH_TO_LDO_RATE
@@ -311,7 +311,7 @@ def test_double_purchase_not_allowed_via_execute_purchase(accounts, executor, da
 
 
 def test_overpay_should_be_returned_via_transfer(accounts, executor, dao_agent, helpers, ldo_token):
-    purchaser = accounts.at(accounts[0], force=True)
+    purchaser = accounts[0]
     purchase_ldo_amount = LDO_ALLOCATIONS[0]
 
     eth_cost = purchase_ldo_amount * ETH_TO_LDO_RATE_PRECISION // ETH_TO_LDO_RATE
@@ -344,7 +344,7 @@ def test_overpay_should_be_returned_via_transfer(accounts, executor, dao_agent, 
 
 
 def test_overpay_should_be_returned_via_execute_purchase(accounts, executor, dao_agent, helpers, ldo_token):
-    purchaser = accounts.at(accounts[0], force=True)
+    purchaser = accounts[0]
     purchase_ldo_amount = LDO_ALLOCATIONS[0]
 
     eth_cost = purchase_ldo_amount * ETH_TO_LDO_RATE_PRECISION // ETH_TO_LDO_RATE
@@ -379,7 +379,7 @@ def test_overpay_should_be_returned_via_execute_purchase(accounts, executor, dao
 def test_purchase_not_allowed_after_expiration_via_transfer(accounts, executor, helpers):
     chain = Chain()
 
-    purchaser = accounts.at(accounts[0], force=True)
+    purchaser = accounts[0]
     purchase_ldo_amount = LDO_ALLOCATIONS[0]
 
     eth_cost = purchase_ldo_amount * ETH_TO_LDO_RATE_PRECISION // ETH_TO_LDO_RATE
@@ -400,7 +400,7 @@ def test_purchase_not_allowed_after_expiration_via_transfer(accounts, executor, 
 def test_purchase_not_allowed_after_expiration_via_execute_purchase(accounts, executor, helpers):
     chain = Chain()
 
-    purchaser = accounts.at(accounts[0], force=True)
+    purchaser = accounts[0]
     purchase_ldo_amount = LDO_ALLOCATIONS[0]
 
     eth_cost = purchase_ldo_amount * ETH_TO_LDO_RATE_PRECISION // ETH_TO_LDO_RATE
