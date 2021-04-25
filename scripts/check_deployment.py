@@ -104,13 +104,13 @@ def check_allocations_receiption(executor):
         overpay = 10**17 * (i % 2)
 
         if purchaser_eth_balance_before < eth_cost + overpay:
-            print(f'Funding the purchaser account with ETH...')
+            print(f'    funding the purchaser account with ETH...')
             eth_banker.transfer(to=purchaser, amount=(eth_cost + overpay - purchaser_eth_balance_before), silent=True)
             purchaser_eth_balance_before = eth_cost + overpay
 
         purchaser_ldo_balance_before = ldo_token.balanceOf(purchaser)
 
-        print(f'Executing the purchase...')
+        print(f'    executing the purchase...')
         purchaser_acct.transfer(to=executor, amount=(eth_cost + overpay), gas_limit=DIRECT_TRANSFER_GAS_LIMIT, silent=True)
 
         ldo_purchased = ldo_token.balanceOf(purchaser) - purchaser_ldo_balance_before
@@ -124,3 +124,9 @@ def check_allocations_receiption(executor):
 
     print(f'Total ETH received by the DAO: {expected_total_eth_cost}')
     assert total_eth_received == expected_total_eth_cost
+
+    print(f'No LDO left on executor')
+    assert ldo_token.balanceOf(executor.address) == 0
+
+    print(f'No ETH left on executor')
+    assert executor.balance() == 0
