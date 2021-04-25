@@ -26,9 +26,22 @@ The process is the following:
 4. After the offer expires (in one month), `PurchaseExecutor.execute_purchase_for` or direct ETH transfer always reverts. Unsold LDO tokens can be recovered to the DAO treasury by calling a permissionless function.
 
 
+## Configuration
+
+The offer parameters are set in [`purchasers.csv`] and [`purchase_config.py`]. The first file contains a list of purchaser addresses and the corresponding LDO wei amounts each address is allowed to purchase. The second file contains the following parameters:
+
+* `OFFER_EXPIRATION_DELAY` the delay in seconds between offer start and its expiration.
+* `ETH_TO_LDO_RATE` the ETH/LDO rate at which all purchases should be made.
+* `VESTING_CLIFF_DELAY` the delay in seconds between the purchase and the start of LDO linear unlock. Before this delay has passed, the purchaser address is not allowed to transfer the purchased tokens.
+* `VESTING_END_DELAY` the delay in seconds between the purchase and the end of LDO linear unlock. After this delay has passed, the purchaser address is allowed to transfer the full amount of the purchased tokens.
+
+[`purchase_config.py`]: ./purchase_config.py
+[`purchasers.csv`]: ./purchasers.csv
+
+
 ## Checking the deployed executor
 
-To check that configuration of the deployed executor matches the one specified in `purchasers.csv` and `purchase_config.py`, run the following command, passing the address of the deployed executor via the environment variable:
+To check that configuration of the deployed executor matches the one specified in [`purchasers.csv`] and [`purchase_config.py`], run the following command, passing the address of the deployed executor via the environment variable:
 
 ```
 EXECUTOR_ADDRESS=... brownie run scripts/check_deployment.py --network mainnet
