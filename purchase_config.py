@@ -10,11 +10,14 @@ VESTING_CLIFF_DELAY = 1 * 60 * 60 * 24 * 365 # one year
 VESTING_END_DELAY = 2 * 60 * 60 * 24 * 365 # two years
 OFFER_EXPIRATION_DELAY = 2629746 # one month
 
+ALLOCATIONS_TOTAL = 70 * 10**6 * 10**18
+
 
 def read_csv_purchasers(filename):
     data = [ (item[0], int(item[1])) for item in read_csv_data(filename) ]
     allocations_total = sum([ item[1] for item in data ])
-    return (data, allocations_total)
+    assert allocations_total == ALLOCATIONS_TOTAL, 'invalid allocations sum'
+    return data
 
 
 def read_csv_data(filename):
@@ -23,4 +26,4 @@ def read_csv_data(filename):
         return list(reader)
 
 
-(LDO_PURCHASERS, ALLOCATIONS_TOTAL) = read_csv_purchasers('purchasers.csv')
+LDO_PURCHASERS = read_csv_purchasers('purchasers.csv')
