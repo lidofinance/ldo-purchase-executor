@@ -10,7 +10,7 @@ VESTING_CLIFF_DELAY = 1 * 60 * 60 * 24 * 365 # one year
 VESTING_END_DELAY = 2 * 60 * 60 * 24 * 365 # two years
 OFFER_EXPIRATION_DELAY = 2629746 # one month
 
-ALLOCATIONS_TOTAL = 70 * 10**6 * 10**18
+ALLOCATIONS_TOTAL = 99064814814814816060000000
 
 
 def read_csv_purchasers(filename):
