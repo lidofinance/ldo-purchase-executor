@@ -111,7 +111,7 @@ def test_offer_automatically_starts_after_funding_on_first_deposit(
     assert purchase_evt['eth_cost'] == eth_cost
 
 
-def test_unsold_ldo_cannot_be_revocered_before_offer_start(
+def test_unsold_ldo_cannot_be_recovered_before_offer_start(
     ldo_holder,
     deployed_executor,
     funding_vote_id,
