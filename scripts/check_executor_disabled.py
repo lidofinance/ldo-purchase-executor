@@ -23,7 +23,7 @@ from purchase_config import (
 )
 
 
-DIRECT_TRANSFER_GAS_LIMIT = 300_000
+DIRECT_TRANSFER_GAS_LIMIT = 400_000
 SEC_IN_A_DAY = 60 * 60 * 24
 
 
