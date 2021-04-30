@@ -61,8 +61,8 @@ def check_allocations(executor):
     assert executor.ldo_allocations_total() == ALLOCATIONS_TOTAL
 
     for (purchaser, expected_allocation) in LDO_PURCHASERS:
-        print(f'  {purchaser}: {expected_allocation / 10**18} LDO')
         (allocation, eth_cost) = executor.get_allocation(purchaser)
+        print(f'  {purchaser}: {expected_allocation / 10**18} LDO, {eth_cost} wei')
         expected_cost = expected_allocation * ETH_TO_LDO_RATE_PRECISION // ETH_TO_LDO_RATE
         assert allocation == expected_allocation
         assert eth_cost == expected_cost
@@ -93,9 +93,10 @@ def check_allocations_receiption(executor):
     dao_agent_eth_balance_before = lido_dao_agent.balance()
 
     for i, (purchaser, expected_allocation) in enumerate(LDO_PURCHASERS):
-        print(f'  {purchaser}: {expected_allocation / 10**18} LDO')
-
         (allocation, eth_cost) = executor.get_allocation(purchaser)
+
+        print(f'  {purchaser}: {expected_allocation / 10**18} LDO, {eth_cost} wei')
+
         assert allocation == expected_allocation
 
         purchaser_acct = accounts.at(purchaser, force=True)

@@ -16,7 +16,7 @@ ALLOCATIONS_TOTAL = 99064814814814816060000000
 def read_csv_purchasers(filename):
     data = [ (item[0], int(item[1])) for item in read_csv_data(filename) ]
     allocations_total = sum([ item[1] for item in data ])
-    assert allocations_total == ALLOCATIONS_TOTAL, 'invalid allocations sum'
+    assert allocations_total == ALLOCATIONS_TOTAL, f'invalid allocations sum: expected {ALLOCATIONS_TOTAL}, actual {allocations_total}'
     return data
 
 
