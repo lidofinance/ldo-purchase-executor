@@ -13,7 +13,7 @@ LDO_ALLOCATIONS = [
 # 100 LDO in one ETH
 ETH_TO_LDO_RATE = 100 * 10**18
 
-VESTING_CLIFF_DELAY = 1 * 60 * 60 * 24 * 365 # one year
+VESTING_START_DELAY = 1 * 60 * 60 * 24 * 365 # one year
 VESTING_END_DELAY = 2 * 60 * 60 * 24 * 365 # two years
 OFFER_EXPIRATION_DELAY = 2629746 # one month
 
@@ -22,7 +22,7 @@ OFFER_EXPIRATION_DELAY = 2629746 # one month
 def executor(accounts, deploy_executor_and_pass_dao_vote):
     executor = deploy_executor_and_pass_dao_vote(
         eth_to_ldo_rate=ETH_TO_LDO_RATE,
-        vesting_cliff_delay=VESTING_CLIFF_DELAY,
+        vesting_start_delay=VESTING_START_DELAY,
         vesting_end_delay=VESTING_END_DELAY,
         offer_expiration_delay=OFFER_EXPIRATION_DELAY,
         ldo_purchasers=[ (accounts[i], LDO_ALLOCATIONS[i]) for i in range(0, len(LDO_ALLOCATIONS)) ],
@@ -49,22 +49,22 @@ def test_transfer_not_allowed_before_vesting_start(executor, purchaser, stranger
     with reverts():
         ldo_token.transfer(stranger, 1, {'from': purchaser})
 
-    chain.sleep(VESTING_CLIFF_DELAY // 2)
+    chain.sleep(VESTING_START_DELAY // 2)
 
     with reverts():
         ldo_token.transfer(stranger, 1, {'from': purchaser})
 
-    chain.sleep(VESTING_CLIFF_DELAY // 2 - 10)
+    chain.sleep(VESTING_START_DELAY // 2 - 10)
 
     with reverts():
         ldo_token.transfer(stranger, 1, {'from': purchaser})
 
 
 def test_tokens_will_begin_becoming_transferable_linearly(executor, purchaser, stranger, ldo_token):
-    chain.sleep(VESTING_CLIFF_DELAY + 60)
+    chain.sleep(VESTING_START_DELAY + 60)
     ldo_token.transfer(stranger, 1, {'from': purchaser})
 
-    vesting_duration = VESTING_END_DELAY - VESTING_CLIFF_DELAY
+    vesting_duration = VESTING_END_DELAY - VESTING_START_DELAY
     chain.sleep(vesting_duration // 3)
 
     stranger_balance = ldo_token.balanceOf(stranger)

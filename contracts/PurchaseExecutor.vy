@@ -43,14 +43,14 @@ ldo_allocations_total: public(uint256)
 offer_expiration_delay: public(uint256)
 offer_started_at: public(uint256)
 offer_expires_at: public(uint256)
-vesting_cliff_delay: public(uint256)
+vesting_start_delay: public(uint256)
 vesting_end_delay: public(uint256)
 
 
 @external
 def __init__(
     _eth_to_ldo_rate: uint256,
-    _vesting_cliff_delay: uint256,
+    _vesting_start_delay: uint256,
     _vesting_end_delay: uint256,
     _offer_expiration_delay: uint256,
     _ldo_purchasers: address[MAX_PURCHASERS],
@@ -59,19 +59,19 @@ def __init__(
 ):
     """
     @param _eth_to_ldo_rate How much LDO one gets for one ETH (multiplied by 10**18)
-    @param _vesting_cliff_delay Delay from vesting start to vesting cliff, in seconds
-    @param _vesting_end_delay Delay from vesting start to vesting end, in seconds
+    @param _vesting_start_delay Delay from the purchase moment to the vesting start moment, in seconds
+    @param _vesting_end_delay Delay from the purchase moment to the vesting end moment, in seconds
     @param _offer_expiration_delay Delay from the contract deployment to offer expiration, in seconds
     @param _ldo_purchasers List of valid LDO purchasers, padded by zeroes to the length of 50
     @param _ldo_allocations List of LDO token allocations, padded by zeroes to the length of 50
     @param _ldo_allocations_total Checksum of LDO token allocations
     """
     assert _eth_to_ldo_rate > 0
-    assert _vesting_end_delay >= _vesting_cliff_delay
+    assert _vesting_end_delay >= _vesting_start_delay
     assert _offer_expiration_delay > 0
 
     self.eth_to_ldo_rate = _eth_to_ldo_rate
-    self.vesting_cliff_delay = _vesting_cliff_delay
+    self.vesting_start_delay = _vesting_start_delay
     self.vesting_end_delay = _vesting_end_delay
     self.offer_expiration_delay = _offer_expiration_delay
     self.ldo_allocations_total = _ldo_allocations_total
@@ -178,9 +178,9 @@ def _execute_purchase(_ldo_receiver: address, _caller: address, _eth_received: u
         value=eth_cost
     )
 
-    vesting_start: uint256 = block.timestamp + self.vesting_cliff_delay
-    vesting_cliff: uint256 = block.timestamp + self.vesting_cliff_delay
+    vesting_start: uint256 = block.timestamp + self.vesting_start_delay
     vesting_end: uint256 = block.timestamp + self.vesting_end_delay
+    vesting_cliff: uint256 = vesting_start
 
     # TokenManager can only assign vested tokens from its own balance
     assert ERC20(LDO_TOKEN).transfer(LIDO_DAO_TOKEN_MANAGER, ldo_allocation)

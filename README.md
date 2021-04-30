@@ -9,7 +9,7 @@ Each participants can execute their part of the deal individually with individua
 
 The [`PurchaseExecutor`](./contracts/PurchaseExecutor.vy) smart contract provides the following interface:
 
-* `__init__(eth_to_ldo_rate: uint256, vesting_cliff_delay: uint256, vesting_end_delay: uint256, offer_expiration_delay: uint256, ldo_recipients: address[], ldo_allocations: uint256[], ldo_allocations_total: uint256)` initializes the contract and sets the immutable offer parameters.
+* `__init__(eth_to_ldo_rate: uint256, vesting_start_delay: uint256, vesting_end_delay: uint256, offer_expiration_delay: uint256, ldo_recipients: address[], ldo_allocations: uint256[], ldo_allocations_total: uint256)` initializes the contract and sets the immutable offer parameters.
 * `start()` if the offer is not started yet, starts it, reverting unless the smart contract controls enough LDO to execute all purchases. Can be called by anyone.
 * `get_allocation(ldo_receiver: address = msg.sender) -> (ldo_alloc: uint256, eth_cost: uint256)` returns the LDO allocation currently available for the given address and its purchase cost in ETH.
 * `execute_purchase_for(recipient: address): payable` will, if there's enough ETH for a purchase allocated to the `recipient` address, assign vested tokens to the recipient by calling the [`TokenManager.assignVested`] function, and send any ETH change back to the `msg.sender`. The vesting start is set to the timestamp of the block the transaction is included to. Reverts unless the `recipient` is a valid LDO recipient, the amount of ETH sent with the call is enough to purchase the whole amount of LDO allocated to the recipient, and the offer is still valid.
@@ -32,7 +32,7 @@ The offer parameters are set in [`purchasers.csv`] and [`purchase_config.py`]. T
 
 * `OFFER_EXPIRATION_DELAY` the delay in seconds between offer start and its expiration.
 * `ETH_TO_LDO_RATE` the ETH/LDO rate at which all purchases should be made.
-* `VESTING_CLIFF_DELAY` the delay in seconds between the purchase and the start of LDO linear unlock. Before this delay has passed, the purchaser address is not allowed to transfer the purchased tokens.
+* `VESTING_START_DELAY` the delay in seconds between the purchase and the start of LDO linear unlock. Before this delay has passed, the purchaser address is not allowed to transfer the purchased tokens.
 * `VESTING_END_DELAY` the delay in seconds between the purchase and the end of LDO linear unlock. After this delay has passed, the purchaser address is allowed to transfer the full amount of the purchased tokens.
 * `ALLOCATIONS_TOTAL` the expected sum of all allocations in [`purchasers.csv`].
 

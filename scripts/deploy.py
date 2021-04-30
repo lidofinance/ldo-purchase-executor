@@ -32,7 +32,7 @@ from utils.config import (
 
 from purchase_config import (
     ETH_TO_LDO_RATE,
-    VESTING_CLIFF_DELAY,
+    VESTING_START_DELAY,
     VESTING_END_DELAY,
     OFFER_EXPIRATION_DELAY,
     LDO_PURCHASERS,
@@ -120,7 +120,7 @@ def propose_replacement_vesting_manager_contract(
 def deploy(
     tx_params,
     eth_to_ldo_rate,
-    vesting_cliff_delay,
+    vesting_start_delay,
     vesting_end_delay,
     offer_expiration_delay,
     ldo_purchasers,
@@ -132,7 +132,7 @@ def deploy(
 
     return PurchaseExecutor.deploy(
         eth_to_ldo_rate,
-        vesting_cliff_delay,
+        vesting_start_delay,
         vesting_end_delay,
         offer_expiration_delay,
         ldo_recipients,
@@ -145,7 +145,7 @@ def deploy(
 def deploy_and_start_dao_vote(
     tx_params,
     eth_to_ldo_rate=ETH_TO_LDO_RATE,
-    vesting_cliff_delay=VESTING_CLIFF_DELAY,
+    vesting_start_delay=VESTING_START_DELAY,
     vesting_end_delay=VESTING_END_DELAY,
     offer_expiration_delay=OFFER_EXPIRATION_DELAY,
     ldo_purchasers=LDO_PURCHASERS,
@@ -154,7 +154,7 @@ def deploy_and_start_dao_vote(
     executor = deploy(
         tx_params=tx_params,
         eth_to_ldo_rate=eth_to_ldo_rate,
-        vesting_cliff_delay=vesting_cliff_delay,
+        vesting_start_delay=vesting_start_delay,
         vesting_end_delay=vesting_end_delay,
         offer_expiration_delay=offer_expiration_delay,
         ldo_purchasers=ldo_purchasers,
@@ -175,7 +175,7 @@ def deploy_replacement_executor_and_start_dao_vote(
     tx_params,
     prev_executor_address,
     eth_to_ldo_rate=ETH_TO_LDO_RATE,
-    vesting_cliff_delay=VESTING_CLIFF_DELAY,
+    vesting_start_delay=VESTING_START_DELAY,
     vesting_end_delay=VESTING_END_DELAY,
     offer_expiration_delay=OFFER_EXPIRATION_DELAY,
     ldo_purchasers=LDO_PURCHASERS,
@@ -184,7 +184,7 @@ def deploy_replacement_executor_and_start_dao_vote(
     executor = deploy(
         tx_params=tx_params,
         eth_to_ldo_rate=eth_to_ldo_rate,
-        vesting_cliff_delay=vesting_cliff_delay,
+        vesting_start_delay=vesting_start_delay,
         vesting_end_delay=vesting_end_delay,
         offer_expiration_delay=offer_expiration_delay,
         ldo_purchasers=ldo_purchasers,

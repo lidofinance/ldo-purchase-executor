@@ -8,7 +8,7 @@ from utils.config import ldo_token_address, lido_dao_agent_address, get_is_live
 from purchase_config import (
     ETH_TO_LDO_RATE_PRECISION,
     ETH_TO_LDO_RATE,
-    VESTING_CLIFF_DELAY,
+    VESTING_START_DELAY,
     VESTING_END_DELAY,
     OFFER_EXPIRATION_DELAY,
     LDO_PURCHASERS,
@@ -55,8 +55,8 @@ def check_config(executor):
     print(f'Offer expiration delay: {OFFER_EXPIRATION_DELAY / SEC_IN_A_DAY} days')
     assert executor.offer_expiration_delay() == OFFER_EXPIRATION_DELAY
 
-    print(f'Vesting cliff delay: {VESTING_CLIFF_DELAY / SEC_IN_A_DAY} days')
-    assert executor.vesting_cliff_delay() == VESTING_CLIFF_DELAY
+    print(f'Vesting start delay: {VESTING_START_DELAY / SEC_IN_A_DAY} days')
+    assert executor.vesting_start_delay() == VESTING_START_DELAY
 
     print(f'Vesting end delay: {VESTING_END_DELAY / SEC_IN_A_DAY} days')
     assert executor.vesting_end_delay() == VESTING_END_DELAY

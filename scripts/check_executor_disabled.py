@@ -15,7 +15,7 @@ from utils.config import (
 from purchase_config import (
     ETH_TO_LDO_RATE_PRECISION,
     ETH_TO_LDO_RATE,
-    VESTING_CLIFF_DELAY,
+    VESTING_START_DELAY,
     VESTING_END_DELAY,
     OFFER_EXPIRATION_DELAY,
     LDO_PURCHASERS,
