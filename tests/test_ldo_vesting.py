@@ -33,51 +33,48 @@ def executor(accounts, deploy_executor_and_pass_dao_vote):
 
 
 @pytest.fixture(scope='function')
-def purchaser(accounts, executor):
+def purchaser(accounts, executor, ldo_token):
     purchaser = accounts[0]
     purchase_ldo_amount = LDO_ALLOCATIONS[0]
 
     eth_cost = purchase_ldo_amount * ETH_TO_LDO_RATE_PRECISION // ETH_TO_LDO_RATE
     executor.execute_purchase(purchaser, { 'from': purchaser, 'value': eth_cost })
 
+    assert ldo_token.balanceOf(purchaser) > 0
+
     return purchaser
 
 
 def test_transfer_not_allowed_before_vesting_start(executor, purchaser, stranger, ldo_token):
-    assert ldo_token.balanceOf(purchaser) > 0
-
     with reverts():
         ldo_token.transfer(stranger, 1, {'from': purchaser})
 
-    chain = Chain()
-
     chain.sleep(VESTING_CLIFF_DELAY // 2)
-    chain.mine()
 
     with reverts():
         ldo_token.transfer(stranger, 1, {'from': purchaser})
 
     chain.sleep(VESTING_CLIFF_DELAY // 2 - 10)
-    chain.mine()
 
     with reverts():
         ldo_token.transfer(stranger, 1, {'from': purchaser})
 
 
 def test_tokens_will_begin_becoming_transferable_linearly(executor, purchaser, stranger, ldo_token):
+    chain.sleep(VESTING_CLIFF_DELAY + 60)
+    ldo_token.transfer(stranger, 1, {'from': purchaser})
+
+    vesting_duration = VESTING_END_DELAY - VESTING_CLIFF_DELAY
+    chain.sleep(vesting_duration // 3)
+
     stranger_balance = ldo_token.balanceOf(stranger)
     purchaser_balance = ldo_token.balanceOf(purchaser)
-    vesting_duration = VESTING_END_DELAY - VESTING_CLIFF_DELAY
-
-    assert purchaser_balance > 0
-
-    chain = Chain()
-
-    chain.sleep(VESTING_CLIFF_DELAY + vesting_duration // 3)
-    chain.mine()
 
     with reverts():
-        ldo_token.transfer(stranger, ldo_token.balanceOf(purchaser), {'from': purchaser})
+        ldo_token.transfer(stranger, purchaser_balance, {'from': purchaser})
+
+    with reverts():
+        ldo_token.transfer(stranger, purchaser_balance // 2, {'from': purchaser})
 
     ldo_token.transfer(stranger, purchaser_balance // 3 - 1, {'from': purchaser})
 
@@ -85,7 +82,6 @@ def test_tokens_will_begin_becoming_transferable_linearly(executor, purchaser, s
     assert ldo_token.balanceOf(stranger) == stranger_balance + purchaser_balance // 3 - 1
 
     chain.sleep(vesting_duration // 3)
-    chain.mine()
 
     with reverts():
         ldo_token.transfer(stranger, ldo_token.balanceOf(purchaser), {'from': purchaser})
@@ -100,13 +96,7 @@ def test_vesting_will_end_after_vesting_end_delay(executor, purchaser, stranger,
     stranger_balance = ldo_token.balanceOf(stranger)
     purchaser_balance = ldo_token.balanceOf(purchaser)
 
-    assert purchaser_balance > 0
-
-    chain = Chain()
-
     chain.sleep(VESTING_END_DELAY + 1)
-    chain.mine()
-
     ldo_token.transfer(stranger, purchaser_balance, {'from': purchaser})
 
     assert ldo_token.balanceOf(purchaser) == 0
