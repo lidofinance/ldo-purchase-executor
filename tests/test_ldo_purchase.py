@@ -132,7 +132,7 @@ def test_purchase_via_transfer(accounts, executor, dao_agent, helpers, ldo_token
     vesting = dao_token_manager.getVesting(purchaser, purchase_evt['vesting_id'])
 
     assert vesting['amount'] == purchase_ldo_amount
-    assert vesting['start'] == tx.timestamp
+    assert vesting['start'] == tx.timestamp + VESTING_CLIFF_DELAY
     assert vesting['cliff'] == tx.timestamp + VESTING_CLIFF_DELAY
     assert vesting['vesting'] == tx.timestamp + VESTING_END_DELAY
     assert vesting['revokable'] == False
@@ -166,7 +166,7 @@ def test_purchase_via_execute_purchase(accounts, executor, dao_agent, helpers, l
     vesting = dao_token_manager.getVesting(purchaser, purchase_evt['vesting_id'])
 
     assert vesting['amount'] == purchase_ldo_amount
-    assert vesting['start'] == tx.timestamp
+    assert vesting['start'] == tx.timestamp + VESTING_CLIFF_DELAY
     assert vesting['cliff'] == tx.timestamp + VESTING_CLIFF_DELAY
     assert vesting['vesting'] == tx.timestamp + VESTING_END_DELAY
     assert vesting['revokable'] == False
@@ -233,7 +233,7 @@ def test_stranger_allowed_to_purchase_token_for_purchaser_via_execute_purchase(a
     vesting = dao_token_manager.getVesting(purchaser, purchase_evt['vesting_id'])
 
     assert vesting['amount'] == purchase_ldo_amount
-    assert vesting['start'] == tx.timestamp
+    assert vesting['start'] == tx.timestamp + VESTING_CLIFF_DELAY
     assert vesting['cliff'] == tx.timestamp + VESTING_CLIFF_DELAY
     assert vesting['vesting'] == tx.timestamp + VESTING_END_DELAY
     assert vesting['revokable'] == False

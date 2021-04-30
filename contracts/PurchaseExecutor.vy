@@ -178,9 +178,9 @@ def _execute_purchase(_ldo_receiver: address, _caller: address, _eth_received: u
         value=eth_cost
     )
 
-    vesting_start: uint256 = block.timestamp
-    vesting_cliff: uint256 = vesting_start + self.vesting_cliff_delay
-    vesting_end: uint256 = vesting_start + self.vesting_end_delay
+    vesting_start: uint256 = block.timestamp + self.vesting_cliff_delay
+    vesting_cliff: uint256 = block.timestamp + self.vesting_cliff_delay
+    vesting_end: uint256 = block.timestamp + self.vesting_end_delay
 
     # TokenManager can only assign vested tokens from its own balance
     assert ERC20(LDO_TOKEN).transfer(LIDO_DAO_TOKEN_MANAGER, ldo_allocation)
