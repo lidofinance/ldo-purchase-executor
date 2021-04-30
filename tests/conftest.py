@@ -116,7 +116,7 @@ def helpers(accounts, dao_voting):
 def deploy_executor_and_pass_dao_vote(accounts, ldo_holder, ldo_token, dao_acl, dao_token_manager, helpers):
     def deploy(
         eth_to_ldo_rate,
-        vesting_cliff_delay,
+        vesting_start_delay,
         vesting_end_delay,
         offer_expiration_delay,
         ldo_purchasers,
@@ -125,7 +125,7 @@ def deploy_executor_and_pass_dao_vote(accounts, ldo_holder, ldo_token, dao_acl, 
         (executor, vote_id) = deploy_and_start_dao_vote(
             {'from': ldo_holder},
             eth_to_ldo_rate=eth_to_ldo_rate,
-            vesting_cliff_delay=vesting_cliff_delay,
+            vesting_start_delay=vesting_start_delay,
             vesting_end_delay=vesting_end_delay,
             offer_expiration_delay=offer_expiration_delay,
             ldo_purchasers=ldo_purchasers,

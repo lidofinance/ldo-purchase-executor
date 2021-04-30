@@ -1,5 +1,4 @@
 from utils.evm_script import encode_call_script, EMPTY_CALLSCRIPT
-from utils.config import ldo_token_address
 
 
 def create_vote(voting, token_manager, vote_desc, evm_script, tx_params):
@@ -29,40 +28,11 @@ def encode_token_transfer(token_address, recipient, amount, reference, finance):
     )
 
 
-def encode_permission_grant(target_app, permission_name, to, acl):
+def encode_permission_grant(target_app, permission_name, grant_to, acl):
     permission_id = getattr(target_app, permission_name)()
-    return (acl.address, acl.grantPermission.encode_input(to, target_app, permission_id))
+    return (acl.address, acl.grantPermission.encode_input(grant_to, target_app, permission_id))
 
 
-def propose_vesting_manager_contract(
-    manager_address,
-    total_ldo_amount,
-    ldo_transfer_reference,
-    acl,
-    voting,
-    finance,
-    token_manager,
-    tx_params
-):
-    evm_script = encode_call_script([
-        encode_token_transfer(
-            token_address=ldo_token_address,
-            recipient=manager_address,
-            amount=total_ldo_amount,
-            reference=ldo_transfer_reference,
-            finance=finance
-        ),
-        encode_permission_grant(
-            target_app=token_manager,
-            permission_name='ASSIGN_ROLE',
-            to=manager_address,
-            acl=acl
-        )
-    ])
-    return create_vote(
-        voting=voting,
-        token_manager=token_manager,
-        vote_desc=f'Make {manager_address} a vesting manager for total {total_ldo_amount} LDO',
-        evm_script=evm_script,
-        tx_params=tx_params
-    )
+def encode_permission_revoke(target_app, permission_name, revoke_from, acl):
+    permission_id = getattr(target_app, permission_name)()
+    return (acl.address, acl.revokePermission.encode_input(revoke_from, target_app, permission_id))
