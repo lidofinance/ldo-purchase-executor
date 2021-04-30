@@ -2,6 +2,7 @@ import os
 import sys
 from brownie import network, accounts, Wei, interface, PurchaseExecutor
 
+from utils.mainnet_fork import chain_snapshot, pass_and_exec_dao_vote
 from utils.config import ldo_token_address, lido_dao_agent_address, get_is_live
 
 from purchase_config import (
@@ -30,14 +31,19 @@ def main():
     check_config(executor)
     check_allocations(executor)
 
-    print(f'Executor is configured correctly')
+    print(f'[ok] Executor is configured correctly')
 
     if get_is_live():
         print('Running on a live network, cannot check allocations reception.')
         print('Run on a mainnet fork to do this.')
         return
 
-    check_allocations_receiption(executor)
+    with chain_snapshot():
+        if 'VOTE_IDS' in os.environ:
+            for vote_id in os.environ['VOTE_IDS'].split(','):
+                pass_and_exec_dao_vote(int(vote_id))
+
+        check_allocations_reception(executor)
 
     print(f'All good!')
 
@@ -55,6 +61,8 @@ def check_config(executor):
     print(f'Vesting end delay: {VESTING_END_DELAY / SEC_IN_A_DAY} days')
     assert executor.vesting_end_delay() == VESTING_END_DELAY
 
+    print(f'[ok] Global config is correct')
+
 
 def check_allocations(executor):
     print(f'Total allocation: {ALLOCATIONS_TOTAL / 10**18} LDO')
@@ -67,8 +75,10 @@ def check_allocations(executor):
         assert allocation == expected_allocation
         assert eth_cost == expected_cost
 
+    print(f'[ok] Allocations are correct')
 
-def check_allocations_receiption(executor):
+
+def check_allocations_reception(executor):
     eth_banker = accounts.at('0xBE0eB53F46cd790Cd13851d5EFf43D12404d33E8', force=True)
 
     ldo_token = interface.ERC20(ldo_token_address)
@@ -77,13 +87,15 @@ def check_allocations_receiption(executor):
 
     print(f'Executor LDO balance: {ALLOCATIONS_TOTAL / 10**18} LDO')
     assert executor_ldo_balance == ALLOCATIONS_TOTAL
+    print('[ok] Executor fully funded')
 
     if not executor.offer_started():
         print(f'Starting the offer')
         executor.start({'from': accounts[0]})
+        assert executor.offer_started()
 
-    print(f'Offer has been started')
-    assert executor.offer_started()
+    print('[ok] Offer started')
+
 
     print(f'Offer lasts {OFFER_EXPIRATION_DELAY / SEC_IN_A_DAY} days')
     assert executor.offer_expires_at() == executor.offer_started_at() + OFFER_EXPIRATION_DELAY
@@ -111,23 +123,25 @@ def check_allocations_receiption(executor):
 
         purchaser_ldo_balance_before = ldo_token.balanceOf(purchaser)
 
-        print(f'    executing the purchase...')
-        purchaser_acct.transfer(to=executor, amount=(eth_cost + overpay), gas_limit=DIRECT_TRANSFER_GAS_LIMIT, silent=True)
+        print(f'    executing the purchase, overpay: {overpay / 10**18} ETH...')
+        tx = purchaser_acct.transfer(to=executor, amount=(eth_cost + overpay), gas_limit=DIRECT_TRANSFER_GAS_LIMIT, silent=True)
 
         ldo_purchased = ldo_token.balanceOf(purchaser) - purchaser_ldo_balance_before
         eth_spent = purchaser_eth_balance_before - purchaser_acct.balance()
 
         assert ldo_purchased == allocation
         assert eth_spent == eth_cost
+        print(f'    [ok] the purchase executed correctly, gas used: {tx.gas_used}')
 
     expected_total_eth_cost = ALLOCATIONS_TOTAL * ETH_TO_LDO_RATE_PRECISION // ETH_TO_LDO_RATE
     total_eth_received = lido_dao_agent.balance() - dao_agent_eth_balance_before
 
     print(f'Total ETH received by the DAO: {expected_total_eth_cost}')
     assert total_eth_received == expected_total_eth_cost
+    print(f'[ok] Total ETH received is correct')
 
-    print(f'No LDO left on executor')
+    print(f'[ok] No LDO left on executor')
     assert ldo_token.balanceOf(executor.address) == 0
 
-    print(f'No ETH left on executor')
+    print(f'[ok] No ETH left on executor')
     assert executor.balance() == 0

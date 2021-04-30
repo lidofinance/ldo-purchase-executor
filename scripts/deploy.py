@@ -3,11 +3,8 @@ from brownie import ZERO_ADDRESS, accounts
 try:
     from brownie import PurchaseExecutor, interface
 except ImportError:
-    print(
-        "You're probably running inside Brownie console. Please call `set_console_globals`, "
-        "passing `interface` and `PurchaseExecutor` global variables"
-    )
-    pass
+    print("You're probably running inside Brownie console. Please call:")
+    print("set_console_globals(interface=interface, PurchaseExecutor=PurchaseExecutor)")
 
 
 def set_console_globals(**kwargs):
