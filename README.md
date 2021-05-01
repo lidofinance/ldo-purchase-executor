@@ -55,3 +55,9 @@ EXECUTOR_ADDRESS=... brownie run scripts/check_deployment.py --network developme
 ```
 
 You'll need to edit [`brownie-config.yaml`](./brownie-config.yaml) and set the `networks.development.fork` key to an archival node RPC address, optionally suffixed by a `@` followed by a block number to set a specific block to fork from, e.g. `http://node.address:8545@12345`.
+
+When running on a mainnet fork, you can pass and execute the selected votes prior to running the checks by assigning comma-delimited vote IDs list to the `VOTE_IDS` environment variable, e.g.:
+
+```
+VOTE_IDS=64,65 EXECUTOR_ADDRESS=... brownie run scripts/check_deployment.py --network development
+```
