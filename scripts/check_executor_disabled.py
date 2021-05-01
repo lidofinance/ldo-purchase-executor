@@ -74,15 +74,24 @@ def check_executor_disabled(executor):
     print(f'Total allocation: {allocations_total / 10**18}')
     print(f'Executor LDO balance: {executor_ldo_balance / 10**18}')
 
-    assert allocations_total == executor_ldo_balance
-    print('[ok] Executor fully funded')
+    if allocations_total == executor_ldo_balance:
+        print('[ok] Executor fully funded')
+    else:
+        print('[WARN] Some executors have executed their purchase')
 
     print(f'Checking inability to purchase allocations')
+
+    executed_purchasers = []
 
     for i, (purchaser, expected_allocation) in enumerate(LDO_PURCHASERS):
         (allocation, eth_cost) = executor.get_allocation(purchaser)
 
         print(f'  {purchaser}: {allocation / 10**18} LDO, {eth_cost} wei')
+
+        if allocation == 0:
+            executed_purchasers = executed_purchasers + [purchaser]
+            print(f'    [WARN] purchaser {purchaser} has executed the purchase')
+            continue
 
         purchaser_acct = accounts.at(purchaser, force=True)
         purchaser_eth_balance = purchaser_acct.balance()
@@ -118,6 +127,14 @@ def check_executor_disabled(executor):
         f'(change: {(agent_ldo_balance_after - agent_ldo_balance_before) / 10**18})'
     )
 
-    assert agent_ldo_balance_after - agent_ldo_balance_before == allocations_total
+    assert agent_ldo_balance_after - agent_ldo_balance_before == executor_ldo_balance
 
-    print('[ok] Total allocation was recovered')
+    print('[ok] Remaining allocation was recovered')
+
+    if len(executed_purchasers) == 0:
+        print('[ok] No purchasers executed the purchase')
+    else:
+        print('[WARN] Some purchasers have executed the purchase:')
+        for addr in executed_purchasers:
+            print(f'       {addr}')
+        raise AssertionError('some purchasers have executed the purchase')
