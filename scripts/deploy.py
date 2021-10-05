@@ -141,6 +141,18 @@ def deploy(
         tx_params
     )
 
+def deploy_with_params(tx_params):
+    executor = deploy(
+        tx_params=tx_params,
+        eth_to_ldo_rate=ETH_TO_LDO_RATE,
+        vesting_start_delay=VESTING_START_DELAY,
+        vesting_end_delay=VESTING_END_DELAY,
+        offer_expiration_delay=OFFER_EXPIRATION_DELAY,
+        ldo_purchasers=LDO_PURCHASERS,
+        allocations_total=ALLOCATIONS_TOTAL
+    )
+
+    return executor
 
 def deploy_and_start_dao_vote(
     tx_params,
