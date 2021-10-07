@@ -95,8 +95,8 @@ def test_offer_automatically_starts_after_funding_on_first_deposit(
     purchaser = accounts[0]
     purchase_ldo_amount = LDO_ALLOCATIONS[0]
     eth_cost = purchase_ldo_amount * ETH_TO_LDO_RATE_PRECISION // ETH_TO_LDO_RATE
-
-    tx = purchaser.transfer(to=deployed_executor, amount=eth_cost, gas_limit=400_000)
+    
+    tx = purchaser.transfer(to=deployed_executor, amount=eth_cost, gas_limit=500_000)
 
     start_evt = helpers.assert_single_event_named('OfferStarted', tx)
     purchase_evt = helpers.assert_single_event_named('PurchaseExecuted', tx)
