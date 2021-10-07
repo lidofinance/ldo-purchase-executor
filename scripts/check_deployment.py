@@ -1,9 +1,15 @@
 import os
-import sys
-from brownie import network, accounts, Wei, interface, PurchaseExecutor
+from brownie import accounts, interface, PurchaseExecutor
 
 from utils.mainnet_fork import chain_snapshot, pass_and_exec_dao_vote
 from utils.config import ldo_token_address, lido_dao_agent_address, get_is_live
+
+from utils.config import (
+    ldo_token_address,
+    lido_dao_acl_address,
+    lido_dao_token_manager_address,
+    lido_dao_voting_address,
+)
 
 from purchase_config import (
     ETH_TO_LDO_RATE_PRECISION,
@@ -40,8 +46,11 @@ def main():
 
     with chain_snapshot():
         if 'VOTE_IDS' in os.environ:
-            for vote_id in os.environ['VOTE_IDS'].split(','):
-                pass_and_exec_dao_vote(int(vote_id))
+          for vote_id in os.environ['VOTE_IDS'].split(','):
+              pass_and_exec_dao_vote(int(vote_id))
+        else:
+            print('Force-configuring an executor without a vote')
+            force_prepare_executor(executor)
 
         check_allocations_reception(executor)
 
@@ -76,6 +85,17 @@ def check_allocations(executor):
         assert eth_cost == expected_cost
 
     print(f'[ok] Allocations are correct')
+
+def force_prepare_executor(executor):
+    # fund executor
+    ldo_token = interface.ERC20(ldo_token_address)
+    ldo_token.transfer(executor.address, ALLOCATIONS_TOTAL, {'from': lido_dao_agent_address})
+
+    # grant executor ASSIGN_ROLE
+    acl = interface.ACL(lido_dao_acl_address)
+    token_manager = interface.TokenManager(lido_dao_token_manager_address)
+    permission_id = getattr(token_manager, 'ASSIGN_ROLE')()
+    acl.grantPermission(executor.address, token_manager, permission_id, {'from': lido_dao_voting_address})
 
 
 def check_allocations_reception(executor):
